@@ -159,6 +159,38 @@ namespace DatasetManagement.Models {
       pbiClient.Datasets.RefreshDatasetInGroup(WorkspaceId, DatasetId);
     }
 
+    public static void UpdateParameter(Guid WorkspaceId, string DatasetId, string ParameterName, string ParameterValue) {
+
+      PowerBIClient pbiClient = TokenManager.GetPowerBiClient(requiredScopes);
+      IList<Dataset> datasets = pbiClient.Datasets.GetDatasetsInGroup(WorkspaceId).Value;
+
+      var dataset = datasets.Where(ds => ds.Id.Equals(DatasetId)).Single();
+
+      Console.WriteLine(dataset.Name);
+      Console.WriteLine();
+
+      UpdateMashupParametersRequest req =
+        new UpdateMashupParametersRequest(
+          new UpdateMashupParameterDetails {
+            Name = ParameterName,
+            NewValue = ParameterValue
+          });
+
+      pbiClient.Datasets.UpdateParametersInGroup(WorkspaceId, DatasetId, req);
+
+    }
+
+    public static void GetImports(Guid WorkspaceId) {
+      PowerBIClient pbiClient = TokenManager.GetPowerBiClient(PowerBiPermissionScopes.TenantReadAll);
+      var imports = pbiClient.Imports.GetImports().Value;
+      foreach (var import in imports) {
+        Console.WriteLine(import.Name);
+        Console.WriteLine(import.ImportState);
+        Console.WriteLine();
+        Console.WriteLine();
+      }
+    }
+
     // testing operations
 
     public static Guid CreateAppWorkspace(string Name) {
